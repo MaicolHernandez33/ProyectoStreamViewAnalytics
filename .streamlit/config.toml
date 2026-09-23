@@ -1,0 +1,9 @@
+# Estos valores deben coincidir siempre con los tokens de src/theme.py
+# (BG, SURFACE, PELICULA, TEXT). Streamlit los usa para el "chrome" nativo
+# (spinner, tooltips de widgets) que el CSS de theme.py no alcanza a cubrir.
+[theme]
+base = "dark"
+primaryColor = "#E50914"          # theme.PELICULA
+backgroundColor = "#0E0E10"       # theme.BG
+secondaryBackgroundColor = "#17171A"  # theme.SURFACE
+textColor = "#F2F2F3"             # theme.TEXT

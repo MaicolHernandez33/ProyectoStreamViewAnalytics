@@ -1,0 +1,13 @@
+# Dashboard (versiones con las que se probó; ver README)
+streamlit>=1.64
+pandas>=2.3
+numpy>=2.2
+plotly>=7.1
+
+# Para regenerar las imágenes de images/ con `python -m src.exportar`, para las figuras del notebook y para tests/verificar_pantalla.py
+# (kaleido y la prueba de pantalla usan un Chrome o Chromium instalado)
+kaleido>=1.0
+
+# Solo para abrir o ejecutar notebooks/analisis_exploratorio.ipynb (nbconvert permite ejecutarlo por línea de comandos)
+ipykernel>=6
+nbconvert>=7

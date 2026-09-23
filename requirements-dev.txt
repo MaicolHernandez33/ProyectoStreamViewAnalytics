@@ -1,0 +1,6 @@
+# Herramientas de desarrollo: no hacen falta para ejecutar el dashboard. Incluye lo de requirements.txt.
+# Instalar con: pip install -r requirements-dev.txt
+-r requirements.txt
+
+# tests/verificar_reglas.py ejecuta pyflakes si está instalado (versión con la que se probó: 3.4.0)
+pyflakes>=3

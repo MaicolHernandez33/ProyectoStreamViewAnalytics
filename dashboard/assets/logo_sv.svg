@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="52" height="24" viewBox="0 0 52 24">
+  <!-- Logo del riel de navegación (st.logo): mismas dos letras que .brand-a en la barra lateral anterior, en el
+       mismo rojo PELICULA (#E50914) y la misma tipografía mono que el resto de la marca (src/theme.py, FUENTE_MONO).
+       Archivo estático: si el rojo de marca cambia en theme.py, este SVG debe actualizarse a mano (no se genera).
+       text-anchor="middle" x="26" (mitad de los 52 de ancho del viewBox): centrar el CONTENEDOR de la imagen (CSS,
+       theme.py) no alcanza si el propio dibujo dentro del SVG no está centrado en SU lienzo — con x="0" y sin
+       text-anchor (versión anterior), "SV" se dibujaba pegado al borde izquierdo del viewBox, así que aunque el
+       <img> quedara perfectamente centrado en el riel, el trazo visible seguía viéndose corrido a la izquierda
+       (getBoundingClientRect() mide la caja de la imagen, no dónde cae la tinta dentro de ella). y="19" (no 18):
+       centra el alto de mayúsculas de JetBrains Mono Bold (~0,72em) dentro del alto 24 del viewBox. -->
+  <text x="26" y="19" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700"
+        font-size="20" letter-spacing="1" fill="#E50914">SV</text>
+</svg>
