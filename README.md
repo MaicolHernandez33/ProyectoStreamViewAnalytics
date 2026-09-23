@@ -3,7 +3,8 @@
 ## Descripción del Proyecto
 Este proyecto fue desarrollado como una solución integral de visualización de datos para **StreamView Analytics**, una plataforma internacional de streaming digital. El dashboard audita el catálogo de películas y series para responder una pregunta de gestión: **¿dónde concentrar la inversión en licencias para sostener la retención de suscriptores?** Está pensado para el equipo de Contenidos y Adquisiciones.
 
-Proyecto del ramo ADY1104 (Visualización de Datos), DUOC UC. Autores: Maicol Hernández · Francis Moya.
+Proyecto del ramo ADY1104 (Visualización de Datos), DUOC UC.
+Autores: Maicol Hernández · Francis Moya.
 
 ## Qué muestra el dashboard
 Cuatro indicadores globales (siempre visibles) y seis páginas, en un riel de navegación a la izquierda, ordenadas como una narración, de la conclusión a la acción:
