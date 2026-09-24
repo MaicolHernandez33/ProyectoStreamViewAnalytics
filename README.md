@@ -127,5 +127,7 @@ Sigue estos pasos desde la terminal, posicionado en la carpeta raíz del proyect
    ```bash
    jupyter nbconvert --to notebook --execute --inplace notebooks/analisis_exploratorio.ipynb
    ```
+## Declaración de Uso de IA
+Durante el desarrollo de este proyecto, se utilizó la asistencia de modelos de Inteligencia Artificial como herramienta de apoyo para la revisión de código, optimización de redacción y la estructuración de ideas para la documentación y presentación.
 
 
