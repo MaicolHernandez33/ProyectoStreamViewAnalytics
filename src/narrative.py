@@ -1,11 +1,11 @@
 """
-Texto del dashboard: título-mensaje + subtítulo de cada gráfico, el panel de hallazgo de cada pestaña analítica, «Cómo
-leer este gráfico» y el contenido del Resumen. Ninguna cifra vive escrita aquí — todas vienen de src/metrics.py a partir
-del dataframe filtrado que reciba cada función.
+Texto del dashboard: título-mensaje + subtítulo de cada gráfico, el panel de hallazgo de cada pestaña analítica, el
+recuadro «Cómo leer» (sin título visible; ver `render_como_leer`) y el contenido del Resumen. Ninguna cifra vive
+escrita aquí — todas vienen de src/metrics.py a partir del dataframe filtrado que reciba cada función.
 
 Cada `titulo_X(df, ...)` devuelve (titulo, subtitulo): el título enuncia la conclusión que hoy sostienen los datos
 filtrados, así que cambia solo si la conclusión misma deja de ser cierta. Regla de redacción: el subtítulo describe QUÉ
-se está mirando; «Cómo leer este gráfico» explica CÓMO se calculó, en ítems cortos — nunca se repiten. Toda enumeración
+se está mirando; el recuadro «Cómo leer» explica CÓMO se calculó, en ítems cortos — nunca se repiten. Toda enumeración
 de elementos pasa por `unir_es`.
 """
 import re
@@ -87,16 +87,13 @@ def render_panel(numero, hallazgo, recomendacion, clave):
         )
 
 
-def render_como_leer(items, expandible):
-    """«Cómo leer este gráfico»: reemplaza las notas al pie largas. `items` es una lista de ítems cortos (una idea cada
-    uno); con `expandible=False` es un recuadro fijo sin fondo, solo borde (Géneros, Evolución, Valoración); con
-    `expandible=True` el mismo contenido va en un st.expander cerrado (Mercados, Matriz) — mismo componente, otro envoltorio."""
+def render_como_leer(items):
+    """Recuadro fijo sin fondo, solo borde, con los ítems cortos que reemplazan las notas al pie largas (una idea cada
+    uno). Antes tenía un encabezado «Cómo leer este gráfico» (y en Mercados/Matriz vivía además dentro de un
+    st.expander cerrado); se quitó el título en todas las páginas y el expander de Mercados/Matriz se eliminó del
+    todo, a pedido del usuario."""
     lista = f'<ul class="como-leer-lista">{"".join(f"<li>{escape(i)}</li>" for i in items)}</ul>'
-    if expandible:
-        with st.expander("Cómo leer este gráfico", expanded=False):
-            st.markdown(lista, unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="como-leer"><div class="como-leer-titulo">Cómo leer este gráfico</div>{lista}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="como-leer">{lista}</div>', unsafe_allow_html=True)
 
 
 def leyenda_html(presentes):
@@ -247,7 +244,7 @@ def panel_evolucion(df, metrica_label, anio_parcial):
 
 
 def como_leer_evolucion(df, metrica_label, anio_parcial):
-    """«Cómo leer este gráfico» de Evolución: ítems cortos (mismos hechos que antes daba la nota al pie, uno por línea).
+    """Recuadro «Cómo leer» de Evolución: ítems cortos (mismos hechos que antes daba la nota al pie, uno por línea).
     Con Valoración: solo método y qué mide el panel. Con Popularidad: qué explica la tendencia (cada cifra calculada)."""
     mediana = "Se usa la mediana, no el promedio, porque la distribución es asimétrica."
     if "aloración" in metrica_label:
@@ -319,7 +316,7 @@ def titulo_generos(df):
     n, arriba = len(cuad), len(_rinden_sobre(cuad))
     sobre = int((cuad["cuadrante"] == metrics.CUAD_SOBREOFERTADO).sum())
     # Subtítulo = guía de lectura de los dos ejes (no una descripción técnica): con eso alcanza para leer el gráfico
-    # sin abrir «Cómo leer este gráfico». Solo aplica cuando el gráfico se dibuja (con ctx None no hay ejes que leer).
+    # sin necesitar el recuadro «Cómo leer». Solo aplica cuando el gráfico se dibuja (con ctx None no hay ejes que leer).
     subtitulo = "Más a la derecha, más títulos. Más arriba, mejor rendimiento frente a su formato."
     rinden = f"{arriba} de {n} {'rinde' if arriba == 1 else 'rinden'} sobre su formato"
     if sobre == 0:
@@ -378,7 +375,7 @@ def panel_generos(df):
 
 
 def como_leer_generos(cuad_o_resumen):
-    """«Cómo leer este gráfico» de Géneros: ítems cortos, uno por idea (mismos hechos que antes daba la nota al pie)."""
+    """Recuadro «Cómo leer» de Géneros: ítems cortos, uno por idea (mismos hechos que antes daba la nota al pie)."""
     n = len(cuad_o_resumen)
     exclusivos = int(((cuad_o_resumen["Película"] == 0) | (cuad_o_resumen["Serie"] == 0)).sum())
     ref = theme.fmt_float(metrics.REFERENCIA_RELATIVA)
@@ -453,23 +450,6 @@ def mejor_rendimiento_html(df, modo):
     )
 
 
-def como_leer_paises(df, modo):
-    """«Cómo leer este gráfico» de Mercados: qué modo de conteo está activo y qué es la popularidad relativa del tooltip."""
-    pl = metrics.pais_lider(df, modo=modo)
-    if pl is None:
-        return []
-    conteo = (
-        "Cada título se cuenta una sola vez, en el primer país listado." if modo == metrics.MODO_PRIMER_PAIS
-        else "Las coproducciones se cuentan en cada país participante, por lo que los totales suman más que el catálogo."
-    )
-    return [
-        conteo,
-        f"Porcentajes sobre los {theme.fmt_int(pl['n_con_pais'])} títulos con país registrado; {theme.fmt_int(pl['n_sin_pais'])} no tienen país.",
-        "El tooltip muestra la popularidad relativa del país: la mediana de sus títulos, cada uno dividido por la mediana de su formato.",
-        f"Las recomendaciones solo consideran países con al menos {metrics.MIN_TITULOS_RELATIVA} títulos.",
-    ]
-
-
 def texto_paises_registrados(df, modo):
     """Línea sobre el denominador propio de la pestaña Mercados (no coincide con el KPI global de títulos analizados)."""
     pl = metrics.pais_lider(df, modo=modo)
@@ -533,7 +513,7 @@ def panel_valoracion(df):
 
 
 def como_leer_valoracion(df):
-    """«Cómo leer este gráfico» de Valoración: los cortes, qué es «Sin votos» y por qué el KPI «Bien evaluados» marca menos
+    """Recuadro «Cómo leer» de Valoración: los cortes, qué es «Sin votos» y por qué el KPI «Bien evaluados» marca menos
     que el % de valoración alta de este gráfico (exige además un mínimo de votos)."""
     pct = metrics.pct_bien_evaluado(df)
     return [
@@ -559,7 +539,7 @@ def titulo_matriz(mvp):
         f"bajo {metrics.UMBRAL_RIESGO}", subtitulo,
     )
 
-
+ 
 def panel_matriz(mvp):
     if mvp["df_sc"].empty:
         return "—", "ningún título alcanza el mínimo de votos elegido.", "Reducir el mínimo de votos para incluir más títulos en el análisis."
@@ -574,17 +554,6 @@ def panel_matriz(mvp):
         recomendacion = "Sostener la estrategia de promoción actual: no hay títulos populares mal evaluados."
     return theme.fmt_pct(mvp["pct_activos"]), hallazgo, recomendacion
 
-
-def como_leer_matriz(mvp):
-    """«Cómo leer este gráfico» de la Matriz: criterio de umbrales y qué significan los conteos de cada zona."""
-    c = metrics.conteos_cuadrantes_matriz(mvp)
-    return [
-        "Cada punto es un título; el eje Y usa escala logarítmica. Se destacan los títulos con popularidad sobre el P75.",
-        f"Riesgo de abandono: valoración menor que {metrics.UMBRAL_RIESGO}; activos a retener: {metrics.UMBRAL_ALTA} o más.",
-        f"La franja {metrics.UMBRAL_RIESGO}–{metrics.UMBRAL_ALTA} es una zona neutra que no se clasifica: se mantiene el corte de {metrics.UMBRAL_RIESGO} para que coincida con el indicador «Títulos en riesgo».",
-        f"Las cinco zonas suman los {theme.fmt_int(c['total'])} títulos graficados.",
-    ]
- 
 
 # ----------------- Tabla de títulos en riesgo (Matriz) -----------------
 def _paises_texto(paises):
@@ -794,7 +763,7 @@ def resumen_ejecutivo(df, rango_anios, modo_paises, anio_parcial):
         # vez aquí, fuera del if/else — antes solo se fijaba en la rama sin tendencia, y con una tendencia que coincide
         # con `ganador` (rama `if`) `tesis` se quedaba en None y el desempate de más abajo (candidatos[0][1], para
         # cuando no hay `tesis`) tronaba: esa entrada es justo la de "formato", con `None` en su lugar a propósito.
-        tesis = (f"LAS {plural.upper()} RINDEN MÁS QUE LAS {otro.upper()} Y DEBEN PRIORIZARSE", soporte)
+        tesis = (f"Las {plural} rinden más que las {otro} y deben priorizarse", soporte)
         candidatos.append(("formato", None, {"numero": numero, "accion": f"Priorizar las {plural} en las próximas licencias", "respaldo": respaldo}))
 
     generos = _tarjeta_generos(ctx_generos[0]) if ctx_generos is not None else None
