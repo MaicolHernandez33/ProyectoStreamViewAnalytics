@@ -34,4 +34,3 @@ with col_texto:
     narrative.render_panel(*narrative.panel_paises(df_filt, modo_paises), clave="paises")
     if not datos_paises.empty:
         st.markdown(narrative.mejor_rendimiento_html(df_filt, modo_paises), unsafe_allow_html=True)
-        narrative.render_como_leer(narrative.como_leer_paises(df_filt, modo_paises), expandible=True)

@@ -117,8 +117,8 @@ JS_TARJETA = """(() => { const p=document.querySelector('[data-testid="stMain"]'
    fondoPlot: (() => { const bg = card.querySelector('.js-plotly-plot .bg'); return bg ? getComputedStyle(bg).fillOpacity : null })()} })()"""
 
 JS_COMO_LEER = """(() => { const p=document.querySelector('[data-testid="stMain"]');
- return {abierto: !!p.querySelector('.como-leer'), expander: !!p.querySelector('[data-testid="stExpander"]'),
-         textoExpander: (p.querySelector('[data-testid="stExpander"] summary')||{}).innerText || null} })()"""
+ return {abierto: !!p.querySelector('.como-leer'), tieneTitulo: !!p.querySelector('.como-leer-titulo'),
+         expander: !!p.querySelector('[data-testid="stExpander"]')} })()"""
 
 JS_RIESGO = """(() => { const p=document.querySelector('[data-testid="stMain"]'); const filas=[...p.querySelectorAll('.riesgo-fila')];
  const descarga=p.querySelector('[class*="st-key-descargar_riesgo"] button'); const tabla=p.querySelector('[data-testid="stDataFrame"]');
@@ -306,14 +306,14 @@ with Servidor() as servidor:
         # ------------------------------------------------------------ clic en cada página del riel: tarjeta, leyenda, «Cómo leer»
         for nombre in ESPERA:
             selector, graficos = ESPERA[nombre]
-            # Además del título y el/los gráfico(s): esperar también el marcador de «Cómo leer este gráfico» que
-            # corresponda (recuadro fijo o expander; el Resumen no tiene ninguno de los dos) — si no, se puede leer
-            # el DOM a medio transicionar desde la página anterior (p. ej. el `.como-leer` de Evolución todavía
-            # montado al llegar a Mercados).
+            # Además del título y el/los gráfico(s): en las páginas ABIERTAS, esperar también el recuadro fijo
+            # `.como-leer`; en las CERRADAS (Mercados, Matriz, que ya no tienen ningún «Cómo leer»), esperar su
+            # AUSENCIA — si no, se puede leer el DOM a medio transicionar desde la página anterior (p. ej. el
+            # `.como-leer` de Valoración todavía montado al llegar a Matriz).
             if nombre in ABIERTAS:
                 extra = " && document.querySelector('[data-testid=\"stMain\"] .como-leer')"
             elif nombre in CERRADAS:
-                extra = " && document.querySelector('[data-testid=\"stMain\"] [data-testid=\"stExpander\"]')"
+                extra = " && !document.querySelector('[data-testid=\"stMain\"] .como-leer')"
             else:
                 extra = ""
             ch.evaluar(js_clic_pagina(nombre))
@@ -332,17 +332,19 @@ with Servidor() as servidor:
             if nombre != "Resumen":
                 tarjeta = ch.evaluar(JS_TARJETA)
                 v.comprobar(f"[clic] {nombre}: la tarjeta del gráfico existe, con su leyenda en la cabecera", tarjeta is not None and tarjeta["hayTarjeta"] and tarjeta["tieneLeyenda"], str(tarjeta))
-                como_leer = ch.evaluar(JS_COMO_LEER)
-                for _reintento in range(4):  # el DOM puede tardar un instante más en asentar que la condición de espera
-                    if como_leer["abierto"] or como_leer["expander"]:
-                        break
-                    time.sleep(0.4)
-                    como_leer = ch.evaluar(JS_COMO_LEER)
                 if nombre in ABIERTAS:
-                    v.comprobar(f"[clic] {nombre}: «Cómo leer este gráfico» está ABIERTO (recuadro fijo, no expander)", como_leer["abierto"], str(como_leer))
+                    como_leer = ch.evaluar(JS_COMO_LEER)
+                    for _reintento in range(4):  # el DOM puede tardar un instante más en asentar que la condición de espera
+                        if como_leer["abierto"]:
+                            break
+                        time.sleep(0.4)
+                        como_leer = ch.evaluar(JS_COMO_LEER)
+                    v.comprobar(f"[clic] {nombre}: el recuadro «Cómo leer» está montado y ya SIN título (se quitó de la interfaz)",
+                                como_leer["abierto"] and not como_leer["tieneTitulo"], str(como_leer))
                 elif nombre in CERRADAS:
-                    v.comprobar(f"[clic] {nombre}: «Cómo leer este gráfico» está en un expander CERRADO",
-                                como_leer["expander"] and "Cómo leer este gráfico" in (como_leer["textoExpander"] or ""), str(como_leer))
+                    como_leer = ch.evaluar(JS_COMO_LEER)
+                    v.comprobar(f"[clic] {nombre}: ya no tiene ningún recuadro ni expander «Cómo leer este gráfico» (se quitó de la interfaz)",
+                                not como_leer["abierto"] and not como_leer["expander"], str(como_leer))
 
             if nombre == "Matriz":
                 riesgo = ch.evaluar(JS_RIESGO)

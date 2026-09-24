@@ -56,4 +56,3 @@ with col_texto:
                 f"Descargar los {fmt(len(riesgo))} en CSV", narrative.csv_riesgo(riesgo, anio_max),
                 file_name="titulos_en_riesgo.csv", mime="text/csv", key="descargar_riesgo",
             )
-    narrative.render_como_leer(narrative.como_leer_matriz(mvp), expandible=True)

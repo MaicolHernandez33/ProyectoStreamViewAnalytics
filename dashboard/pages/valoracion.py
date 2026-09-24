@@ -21,4 +21,4 @@ with col_grafico:
 
 with col_texto:
     narrative.render_panel(*narrative.panel_valoracion(df_filt), clave="valoracion")
-    narrative.render_como_leer(narrative.como_leer_valoracion(df_filt), expandible=False)
+    narrative.render_como_leer(narrative.como_leer_valoracion(df_filt))

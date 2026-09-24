@@ -40,4 +40,4 @@ with col_grafico:
 with col_texto:
     narrative.render_panel(*narrative.panel_evolucion(df_filt, metrica, anio_max), clave="evolucion")
     if not evolucion.empty:
-        narrative.render_como_leer(narrative.como_leer_evolucion(df_filt, metrica, anio_max), expandible=False)
+        narrative.render_como_leer(narrative.como_leer_evolucion(df_filt, metrica, anio_max))

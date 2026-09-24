@@ -501,20 +501,16 @@ section[data-testid="stSidebar"] > div {{ background:{SURFACE} !important; }}
 .leyenda-nivel {{ display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; }}
 .leyenda-nivel--sinvotos {{ background-image:repeating-linear-gradient(45deg, {NEUTRO} 0 1.5px, {TRANSPARENTE} 1.5px 4px); border:1px solid {NEUTRO}; }}
 
-/* «Cómo leer este gráfico»: reemplaza las notas al pie largas. Recuadro SIN fondo, solo borde; ítems cortos, una idea cada uno.
-   Abierto (.como-leer, un div fijo) en Géneros/Evolución/Valoración; cerrado (st.expander) en Mercados/Matriz — mismo contenido,
-   por eso el expander se estiliza igual (sin fondo, solo borde) para que ambas variantes se vean como el mismo componente. */
+/* Recuadro «Cómo leer»: reemplaza las notas al pie largas. SIN fondo, solo borde; ítems cortos, una idea cada uno.
+   Sin título (se quitó de la interfaz); en Géneros, Evolución y Valoración. En Mercados y Matriz, donde este
+   contenido vivía dentro de un st.expander cerrado, se eliminó del todo — por eso ya no hay CSS de stExpander aquí. */
 .como-leer {{ border:1px solid {BORDER}; border-radius:8px; padding:14px 16px; margin-top:16px; }}
-.como-leer-titulo {{ font-size:{TAM_CAPTION}px; font-weight:600; color:{TEXT}; margin-bottom:8px; }}
 /* !important: Streamlit reinyecta un font-size propio sobre <li> de la misma especificidad; sin esto el ítem se ve
    ~16px en vez de los 12px pedidos (mismo problema, y misma solución, que .meto-lista li más abajo). */
 .como-leer-lista, .como-leer-lista li {{ font-size:{TAM_CAPTION}px !important; color:{TEXT_MUTED}; line-height:1.6; }}
 .como-leer-lista {{ margin:0; padding-left:18px; }}
 .como-leer-lista li {{ margin-bottom:6px; }}
 .como-leer-lista li:last-child {{ margin-bottom:0; }}
-[data-testid="stExpander"] {{ background:{TRANSPARENTE}; border:1px solid {BORDER}; border-radius:8px; margin-top:16px; }}
-[data-testid="stExpander"] summary {{ font-size:{TAM_CAPTION}px; font-weight:600; color:{TEXT}; }}
-[data-testid="stExpander"] [data-testid="stExpanderDetails"] {{ padding-top:0; }}
 
 /* Listas del popover «ⓘ Sobre los datos» (Lo esencial y Limitaciones clave): texto de lectura normal, solo tamaños y colores del sistema. */
 .meto-lista {{ font-size:{TAM_CUERPO}px; color:{TEXT}; line-height:1.6; padding-left:20px; margin:8px 0 0; }}
@@ -541,7 +537,7 @@ section[data-testid="stSidebar"] > div {{ background:{SURFACE} !important; }}
 .hacer-enlace {{ display:flex; align-items:center; gap:8px; font-size:{TAM_CAPTION}px; font-weight:600; color:{TEXT}; margin-top:4px; }}
 .hacer-enlace .dot {{ background:{NEGATIVO}; margin-right:0; }}
 
-/* Mercados: lista «Mejor rendimiento frente a su formato» (columna derecha, entre el panel y «Cómo leer este gráfico»). */
+/* Mercados: lista «Mejor rendimiento frente a su formato» (columna derecha, debajo del panel; último elemento de la columna). */
 .mercado-lista {{ margin:16px 0; }}
 .mercado-lista-titulo {{ font-size:{TAM_CAPTION}px; font-weight:600; color:{TEXT}; margin-bottom:2px; }}
 .mercado-lista-subtitulo {{ font-size:{TAM_CAPTION}px; color:{TEXT_MUTED}; margin-bottom:10px; }}

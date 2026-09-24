@@ -34,4 +34,4 @@ with col_grafico:
 with col_texto:
     narrative.render_panel(*narrative.panel_generos(df_filt), clave="generos")
     if not resumen_generos.empty and len(resumen_generos) >= metrics.MIN_GENEROS_BURBUJAS:
-        narrative.render_como_leer(narrative.como_leer_generos(cuadrantes), expandible=False)
+        narrative.render_como_leer(narrative.como_leer_generos(cuadrantes))

@@ -5,6 +5,15 @@ Este proyecto fue desarrollado como una solución integral de visualización de 
 
 Proyecto del ramo ADY1104 (Visualización de Datos), DUOC UC. Autores: Maicol Hernández · Francis Moya.
 
+## Hallazgos y tesis
+Antes de construir un solo gráfico, el análisis exploratorio (`notebooks/analisis_exploratorio.ipynb`) auditó la calidad de los datos: el reparto de títulos por año resultó demasiado regular para ser real (exactamente 1.000 por año y formato, sugiriendo datos sintéticos o muestreados por cuotas); `rating` resultó idéntica a `vote_average` en las 32.000 filas, así que no aporta una clasificación por edad; 20 de los 28 géneros existen en un solo formato porque el origen usa taxonomías distintas para películas y series; el año 2025 está incompleto (68 % de los títulos sin votos, frente a 11 % en años anteriores); y `popularity` es un índice muy asimétrico (el promedio casi duplica la mediana). Estos cinco hallazgos son la razón detrás de decisiones concretas del dashboard: no se analiza volumen por año, se descarta `rating`, los géneros no se fusionan entre formatos, 2025 se muestra pero fuera de los extremos de tendencia, y todo el dashboard resume con la **mediana**, no el promedio.
+
+Sobre el conjunto por defecto (2015–2025, ambos formatos, 22.000 títulos), dos hechos sostienen la tesis del Resumen — **«Las series rinden más que las películas y deben priorizarse»**:
+1. Su ventaja en **popularidad** se achica: de 4,4× en 2015 a 1,2× en 2024 (las series bajan 34 % en 2020; las películas suben de 10,3 a 27,7 entre 2020 y 2024).
+2. Su ventaja en **valoración alta** crece: de +23 a +34 puntos porcentuales en el mismo período, superando a las películas los once años — esta métrica no depende del índice de popularidad de TMDB, por eso es la que sostiene la prioridad.
+
+De ahí salen las tres acciones de «Qué hacer» del Resumen: priorizar series; licenciar películas de los géneros que rinden sobre su formato (Aventura, Acción y Suspenso); y diversificar hacia Filipinas y México sin recortar los mercados actuales. La tesis y las tres acciones **se calculan en cada filtro, nunca se escriben a mano**: con un solo formato filtrado no hay con qué comparar popularidad o valoración entre formatos, así que el Resumen cambia a un ranking de géneros por ese formato en vez de forzar una comparación que ya no aplica. El detalle completo del análisis, con sus gráficos y una celda que verifica con `assert` cada cifra citada, está en el notebook.
+
 ## Qué muestra el dashboard
 Cuatro indicadores globales (siempre visibles) y seis páginas, en un riel de navegación a la izquierda, ordenadas como una narración, de la conclusión a la acción:
 
@@ -19,7 +28,7 @@ Cuatro indicadores globales (siempre visibles) y seis páginas, en un riel de na
 
 Al pie del riel, el botón **CSV** descarga el conjunto filtrado y el botón **Datos** abre un resumen de la fuente de datos, de lo que controla el análisis y de sus limitaciones clave. El texto completo (métricas derivadas, criterios de corte y limitaciones) está en `docs/metodologia.md`.
 
-Cada gráfico lleva un título que enuncia su conclusión (se recalcula con los filtros), un subtítulo y, en la columna derecha, «Cómo leer este gráfico» con el método. Todas las cifras se calculan sobre el conjunto filtrado y usan formato es-CL (`10.305`, `23,2`). Géneros y países se muestran en español.
+Cada gráfico lleva un título que enuncia su conclusión (se recalcula con los filtros) y un subtítulo; en Géneros, Evolución y Valoración, la columna derecha también trae un recuadro con el método. Todas las cifras se calculan sobre el conjunto filtrado y usan formato es-CL (`10.305`, `23,2`). Géneros y países se muestran en español.
 
 **Convención de color:** rojo = Película, gris = Serie en todo gráfico que separa por formato. Excepciones, siempre con leyenda: el gráfico de géneros colorea por el formato en que existe cada género (rojo solo películas, gris claro solo series, gris oscuro ambos), y las barras de Valoración usan el nivel (intensidad, con su propia leyenda) dentro del color del formato.
 
@@ -52,6 +61,18 @@ Cada gráfico lleva un título que enuncia su conclusión (se recalcula con los 
 * `notebooks/analisis_exploratorio.ipynb`: el análisis exploratorio que llevó a las decisiones del dashboard (calidad de los datos, distribuciones y hallazgos que sustentan la tesis), ejecutado y con sus salidas visibles. Reutiliza `src/`; no forma parte de la aplicación.
 * `tests/`: scripts de auditoría (reglas de diseño, cifras validadas con cálculo independiente, dashboard en varios estados y medidas en un navegador real). Cómo correrlos, en `tests/README.md`.
 * `images/`: un PNG por gráfico principal, generado por `src/exportar.py` con los filtros por defecto (no se editan a mano).
+
+## Cómo se construyó
+El proyecto se hizo en rondas, cada una verificada con la auditoría automatizada antes de pasar a la siguiente:
+
+1. **Análisis exploratorio** (notebook): integración de los dos CSV, cinco preguntas sobre calidad de datos, distribuciones de `popularity`/`vote_average` y los hallazgos que sustentan la tesis (sección anterior).
+2. **Dashboard base**: seis páginas (Resumen + 5 analíticas) con títulos-mensaje que enuncian su conclusión —recalculada con los filtros, nunca escrita a mano— y un panel de hallazgo con su recomendación.
+3. **Rediseño de contenido (Paso 1):** franja de 4 KPIs en un solo contenedor (antes, tarjetas sueltas); el panel de cada página pasó a número + hallazgo + recomendación; y las notas al pie largas de cada gráfico se reemplazaron por un recuadro corto con el método.
+4. **Rediseño de navegación (Paso 2):** la barra lateral con pestañas (`st.tabs`) se reemplazó por un riel angosto de íconos (`st.navigation`) y una barra de filtros horizontal (`st.segmented_control`/`st.pills`/`st.popover`/`st.multiselect`), con el botón CSV y el popover «Datos» al pie del riel. Una ronda de ajuste posterior corrigió el centrado del logo y los íconos del riel, e incluyó un hallazgo puntual: el logo estaba descentrado dentro de su propio archivo SVG, no solo por el CSS del contenedor que lo envuelve.
+5. **Simplificación de la interfaz:** se retiró el título «Cómo leer este gráfico» de las páginas donde el recuadro de método se mostraba siempre abierto (Géneros, Evolución, Valoración), y se eliminó por completo donde vivía dentro de un menú desplegable (Mercados, Matriz).
+6. **Aseguramiento de calidad**, en paralelo a cada ronda: cuatro scripts de auditoría (`tests/`, ver más abajo) comprueban que el código cumple las reglas de diseño, que las cifras coinciden con un cálculo independiente hecho desde el CSV crudo (sin usar `src/`), que el dashboard no lanza excepciones ni dibuja un gráfico vacío en varios estados de filtros, y que las medidas reales en un navegador Chrome (tamaños, alineación, contraste) coinciden con lo decidido.
+
+Cada decisión de diseño, su motivo y las alternativas descartadas quedan registrados en `DECISIONES.md`; el detalle de qué comprueba cada script de auditoría está en `tests/README.md`.
 
 ## Fuentes de Datos
 Conjuntos de datos hasta 2025, con 16.000 películas y 16.000 series:

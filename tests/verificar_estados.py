@@ -24,7 +24,8 @@ dice «retorno»); que NINGUNA oración del Resumen se repita en otra página; q
 reducir o recortar un género o mercado con popularidad relativa > 1; que el TÍTULO-MENSAJE de cada página analítica sea
 VERDADERO (recalculado desde el CSV crudo); y, del rediseño: que cada panel tenga su etiqueta «Recomendación», que el
 enlace a los títulos en riesgo coincida con el KPI, la lista de Mercados, la lista de riesgo de la Matriz (máximo
-N_TABLA_RIESGO filas, sin tabla+expander) y que «Cómo leer este gráfico» esté abierto o en expander según la página; y
+N_TABLA_RIESGO filas, sin tabla+expander) y que el recuadro «Cómo leer» ya no tenga título (y que en Mercados/Matriz
+se haya quitado del todo); y
 que NINGÚN gráfico de NINGUNA página, en NINGÚN estado, quede vacío (≥1 traza con datos) ni con un eje fuera de su
 dominio esperado (años, cantidad de títulos, valoración, países, proporciones…) — streamlit.testing.v1 por sí solo solo
 detecta excepciones, no figuras vacías.
@@ -461,17 +462,18 @@ def verificar(v, nombre_estado, estado, modo, metrica):
     if "riesgo-lista-titulo" in texto_matriz:
         v.comprobar(f"[{etiqueta}] la lista de riesgo de la Matriz tiene entre 1 y 5 filas (N_TABLA_RIESGO)", 1 <= n_filas_riesgo <= 5, n_filas_riesgo)
         v.comprobar(f"[{etiqueta}] Matriz ya no tiene tabla+expander de riesgo (reemplazada por la lista)", "stDataFrame" not in texto_matriz)
-    # «Cómo leer este gráfico»: abierto (Géneros/Evolución/Valoración) o en expander (Mercados/Matriz) — solo se comprueba
-    # cuando la página efectivamente lo dibujó (con aviso de «pocos datos» no hay gráfico, y tampoco «Cómo leer»).
+    # Recuadro «Cómo leer»: ya sin título en Géneros/Evolución/Valoración (sigue siendo un div `.como-leer` fijo);
+    # en Mercados/Matriz, donde vivía en un expander cerrado con el título «Cómo leer este gráfico», se quitó del todo.
     abiertas, cerradas = ("Géneros", "Evolución", "Valoración"), ("Mercados", "Matriz")
     for n in abiertas:
         texto_n = "\n".join(paginas[n]["markdown"])
-        if "Cómo leer este gráfico" in texto_n:
-            v.comprobar(f"[{etiqueta}] «Cómo leer este gráfico» de {n} está ABIERTO (div fijo, no expander)", 'class="como-leer"' in texto_n)
+        if 'class="como-leer"' in texto_n:
+            v.comprobar(f"[{etiqueta}] el recuadro «Cómo leer» de {n} ya no muestra el título «Cómo leer este gráfico»",
+                        "Cómo leer este gráfico" not in texto_n)
     for n in cerradas:
-        if paginas[n]["expander_labels"]:
-            v.comprobar(f"[{etiqueta}] «Cómo leer este gráfico» de {n} está en un expander CERRADO",
-                        paginas[n]["expander_labels"][-1] == "Cómo leer este gráfico")
+        texto_n = "\n".join(paginas[n]["markdown"])
+        v.comprobar(f"[{etiqueta}] {n} ya no tiene el expander «Cómo leer este gráfico» (se quitó de la interfaz)",
+                    not paginas[n]["expander_labels"] and "Cómo leer este gráfico" not in texto_n)
     return firma
 
 
